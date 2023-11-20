@@ -1,6 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
+    ":semanticCommits",
+    ":bumpVersion",
+    "osvVulnerabilityAlerts",
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "groupName": "Angular",
+      "matchPackagePatterns": [
+        "^@angular/*",
+        "^@angular-devkit/*"
+      ]
+    }
   ]
 }
