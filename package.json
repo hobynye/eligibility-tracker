@@ -2,11 +2,11 @@
   "name": "eligibility-tracker",
   "version": "0.0.0",
   "scripts": {
-    "ng": "eligibility-tracker/node_modules/.bin/ng",
-    "start": "eligibility-tracker/node_modules/.bin/ng serve",
-    "build": "eligibility-tracker/node_modules/.bin/ng build",
-    "watch": "eligibility-tracker/node_modules/.bin/ng build --watch --configuration development",
-    "test": "eligibility-tracker/node_modules/.bin/ng test",
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
     "serve:ssr:eligibility-tracker": "node dist/eligibility-tracker/server/server.mjs"
   },
   "private": true,
