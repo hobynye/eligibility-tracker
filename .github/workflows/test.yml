@@ -4,6 +4,7 @@ on: pull_request
 
 jobs:
   unit-test:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
