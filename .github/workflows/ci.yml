@@ -1,0 +1,93 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [main, beta, alpha]
+
+permissions:
+  contents: read
+
+jobs:
+  version-info:
+    name: Version Info
+    runs-on: ubuntu-latest
+    outputs:
+      currentVersion: ${{ steps.current-version.outputs.currentVersion }}
+      nextVersion: ${{ steps.next-version.outputs.currentVersion }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Install dependencies
+        run: npm clean-install
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
+      - name: Get current version number
+        id: current-version
+        run: |
+          APP_VERSION=$(npm pkg get version --workspaces=false | tr -d \")
+          echo "currentVersion=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Get next version
+        id: next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          NEXT_VERSION_SPACES=$(npx semantic-release --dryRun | grep -oP 'Published release \K.*? ')
+          NEXT_VERSION="${NEXT_VERSION_SPACES// /}" # Remove spaces
+          echo "nextVersion=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Unit Tests
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadless
+
+  sonar:
+    name: Sonar
+    runs-on: ubuntu-latest
+    needs: [version-info]
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Unit Tests
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+      - name: Sonar Scan
+        uses: SonarSource/sonarcloud-github-action@2.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=hobynye
+            -Dsonar.projectKey=hobynye_eligibility-tracker
+            -Dsonar.projectName='Eligibility Tracker'
+            -Dsonar.projectVersion=${{ needs.version-info.outputs.currentVersion }}
+            -Dsonar.javascript.lcov.reportPaths=./coverage/eligibility-tracker/lcov.info
