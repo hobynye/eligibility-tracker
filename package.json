@@ -91,16 +91,7 @@
       [
         "@semantic-release/github",
         {
-          "assets": [
-            [
-              "dist/**/browser/*.{js,css}",
-              "dist/**/browser/index.html",
-              "dist/**/browser/favicon.ico"
-            ],
-            {
-              "label": "Eligibility Tracker ${nextRelease.gitTag}"
-            }
-          ]
+          "assets": ["dist/**/browser/*.{js,css}", "dist/**/browser/index.html", "dist/**/browser/favicon.ico"]
         }
       ]
     ]
