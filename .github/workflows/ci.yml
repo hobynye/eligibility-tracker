@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEXT_VERSION_SPACES=$(npx semantic-release --dryRun | grep -oP 'Published release \K.*? ')
+          NEXT_VERSION_SPACES=$(npx semantic-release --dryRun | grep -o 'Published release \K.*? ')
           NEXT_VERSION="${NEXT_VERSION_SPACES// /}" # Remove spaces
           echo "nextVersion=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
 
