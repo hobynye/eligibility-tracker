@@ -11,6 +11,10 @@ jobs:
   version-info:
     name: Version Info
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: write
     outputs:
       currentVersion: ${{ steps.current-version.outputs.currentVersion }}
       nextVersion: ${{ steps.next-version.outputs.currentVersion }}
@@ -36,9 +40,9 @@ jobs:
       - name: Get next version
         id: next-version
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEXT_VERSION_SPACES=$(npx semantic-release --dryRun | grep -oP 'Published release \K.*? ')
+          NEXT_VERSION_SPACES=$(npx semantic-release --dryRun | grep -o 'Published release \K.*? ')
           NEXT_VERSION="${NEXT_VERSION_SPACES// /}" # Remove spaces
           echo "nextVersion=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
 
